@@ -114,8 +114,7 @@ function epap_payment_view_data( $payment_id ) {
     $paypal_adaptive = new PayPalAdaptivePaymentsGateway();
     if ( $cancellation = $paypal_adaptive->cancel_preapprovals( $_GET['preapproval_key'] ) ) {
       $responsecode = strtoupper( $cancellation['responseEnvelope']['ack'] );
-      $paymentStatus = strtoupper( $cancellation[ 'paymentExecStatus' ] );
-      if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
+      if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) ) {
         edd_update_payment_status( $_GET['payment_id'], 'cancelled' );
         $query_args = array(
           'status' => $status,
@@ -227,8 +226,7 @@ function epap_process_payment( $purchase_data ) {
     $response = $paypal_adaptive->pay( $payment, $receivers );
   }
   $responsecode = strtoupper( $response['responseEnvelope']['ack'] );
-  $paymentStatus = strtoupper( $response[ 'paymentExecStatus' ] );
-  if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
+  if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) ) {
     
     if( isset( $response['preapprovalKey']) ) {
       $preapproval_key = $response['preapprovalKey'];
