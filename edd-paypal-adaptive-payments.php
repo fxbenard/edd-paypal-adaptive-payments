@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.0.1
+Version: 1.0.2
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -84,7 +84,8 @@ function epap_payment_view_data( $payment_id ) {
     if ( $amount > $paid ) {
       if ( $payment = $paypal_adaptive->pay_preapprovals( $_GET['payment_id'], $_GET['preapproval_key'], $sender_email, $amount ) ) {
         $responsecode = strtoupper( $payment['responseEnvelope']['ack'] );
-        if ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) {
+        $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
+        if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
           $pay_key = $payment['payKey'];
           add_post_meta( $_GET['payment_id'], '_edd_epap_pay_key', $pay_key );
           add_post_meta( $_GET['payment_id'], '_edd_epap_preapproval_paid', true );
@@ -113,7 +114,8 @@ function epap_payment_view_data( $payment_id ) {
     $paypal_adaptive = new PayPalAdaptivePaymentsGateway();
     if ( $cancellation = $paypal_adaptive->cancel_preapprovals( $_GET['preapproval_key'] ) ) {
       $responsecode = strtoupper( $cancellation['responseEnvelope']['ack'] );
-      if ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) {
+      $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
+      if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
         edd_update_payment_status( $_GET['payment_id'], 'cancelled' );
         $query_args = array(
           'status' => $status,
@@ -225,7 +227,8 @@ function epap_process_payment( $purchase_data ) {
     $response = $paypal_adaptive->pay( $payment, $receivers );
   }
   $responsecode = strtoupper( $response['responseEnvelope']['ack'] );
-  if ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) {
+  $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
+  if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
     
     if( isset( $response['preapprovalKey']) ) {
       $preapproval_key = $response['preapprovalKey'];
@@ -243,7 +246,7 @@ function epap_process_payment( $purchase_data ) {
   } else {
     $title = $type == 'pay' ? __( 'Payment Failed', 'epap' ) : __( 'Preapproval Failed', 'epap' );
     $message = $type == 'pay' ? __( 'A payment failed to process: %s', 'epap' ) : __( 'A preapproval failed to process: %s', 'epap' );
-    edd_record_gateway_error( $title, sprintf( $message, json_encode( $cancellation ) ), $payment );
+    edd_record_gateway_error( $title, sprintf( $message, json_encode( $response ) ), $payment );
     // get rid of the pending purchase
     edd_update_payment_status( $payment, 'failed' );
 
@@ -526,3 +529,29 @@ function epap_updater() {
   );
 }
 add_action( 'admin_init', 'epap_updater' );
+
+function epap_process_preapprovals( $payment_id, $receivers ) {
+  $processed        = false;
+  $paypal_adaptive  = new PayPalAdaptivePaymentsGateway();
+  $sender_email     = get_post_meta( $payment_id, '_edd_epap_sender_email', true );
+  $amount           = get_post_meta( $payment_id, '_edd_epap_amount', true );
+  $paid             = get_post_meta( $payment_id, '_edd_epap_paid', true );
+  $preapproval_key  = get_post_meta( $payment_id, '_edd_epap_preapproval_key', true );
+  
+  if ( $paid < $amount ) {
+    if ( $payment = $paypal_adaptive->pay_preapprovals( $payment_id, $preapproval_key, $sender_email, $amount, $receivers ) ) {
+      $responsecode = strtoupper( $payment['responseEnvelope']['ack'] );
+      $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
+      if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
+        $pay_key = $payment[ 'payKey' ];
+      
+        add_post_meta( $payment_id, '_edd_epap_pay_key', $pay_key );
+        add_post_meta( $payment_id, '_edd_epap_preapproval_paid', true );
+      
+        edd_update_payment_status( $payment_id, 'publish' );
+        $processed = true;
+      }
+    }
+  }
+  return $processed;
+}
