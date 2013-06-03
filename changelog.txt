@@ -1,0 +1,6 @@
+Changelog
+
+= Version 1.1 - June 2, 2013 =
+
+* New: Introduce separate preapproval processing function for use with other extensions.
+* Fix: Make sure there are no errors even when PayPal marks a payment as success.
