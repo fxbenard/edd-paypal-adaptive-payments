@@ -82,7 +82,7 @@ function epap_payment_view_data( $payment_id ) {
     $amount = get_post_meta( $_GET['payment_id'], '_edd_epap_amount', true );
     $paid = get_post_meta( $_GET['payment_id'], '_edd_epap_paid', true );
     if ( $amount > $paid ) {
-      $payment = $paypal_adaptive->pay_preapprovals( $_GET['payment_id'], $_GET['preapproval_key'], $sender_email, $amount )
+      $payment = $paypal_adaptive->pay_preapprovals( $_GET['payment_id'], $_GET['preapproval_key'], $sender_email, $amount );
       if ( $payment ) {
         $responsecode = strtoupper( $payment['responseEnvelope']['ack'] );
         $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
@@ -121,7 +121,7 @@ function epap_payment_view_data( $payment_id ) {
   // Process a cancelation of the Preapproval
   if ( isset($edd_options['epap_preapproval']) && $edd_options['epap_preapproval'] && isset( $_GET['epap_process'] ) && $_GET['epap_process'] == 'cancel_preapproval' && isset( $_GET['payment_id'] ) && isset( $_GET['preapproval_key'] ) ) {
     $paypal_adaptive = new PayPalAdaptivePaymentsGateway();
-    $cancellation = $paypal_adaptive->cancel_preapprovals( $_GET['preapproval_key'] )
+    $cancellation = $paypal_adaptive->cancel_preapprovals( $_GET['preapproval_key'] );
     if ( $cancellation ) {
       $responsecode = strtoupper( $cancellation['responseEnvelope']['ack'] );
       if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) ) {
@@ -555,7 +555,7 @@ function epap_process_preapprovals( $payment_id, $receivers ) {
   $preapproval_key  = get_post_meta( $payment_id, '_edd_epap_preapproval_key', true );
   
   if ( $paid < $amount ) {
-    $payment = $paypal_adaptive->pay_preapprovals( $payment_id, $preapproval_key, $sender_email, $amount, $receivers )
+    $payment = $paypal_adaptive->pay_preapprovals( $payment_id, $preapproval_key, $sender_email, $amount, $receivers );
     if ( $payment ) {
       $responsecode = strtoupper( $payment['responseEnvelope']['ack'] );
       $paymentStatus = isset( $payment[ 'paymentExecStatus' ] ) ? strtoupper( $payment[ 'paymentExecStatus' ] ) : false;
