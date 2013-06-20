@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.1
+Version: 1.1.1
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
