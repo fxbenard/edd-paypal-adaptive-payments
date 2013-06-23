@@ -1,6 +1,6 @@
 Changelog
 
-= Version 1.1 - June 20, 2013 =
+= Version 1.1.1 - June 20, 2013 =
 
 * New: Added additional gateway errors.
 * Fix: Conflicts with EDD 1.6+.
