@@ -17,7 +17,7 @@ if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
 
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.1' );
+define( 'EDD_EPAP_VERSION', '1.1.2' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
