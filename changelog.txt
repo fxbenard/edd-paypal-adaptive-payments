@@ -1,5 +1,10 @@
 Changelog
 
+= Version 1.1.2 - July 10, 2013 =
+
+* Fix: Headers already sent errors when processing payments
+* Fix: Issues with a few PayPal Adaptive accounts not processing payments
+
 = Version 1.1.1 - June 20, 2013 =
 
 * New: Added additional gateway errors.

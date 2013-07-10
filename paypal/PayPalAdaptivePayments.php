@@ -70,7 +70,8 @@ class PayPalAdaptivePaymentsGateway {
       'endingDate'                  => isset($ending_date) ? $ending_date : apply_filters( 'epap_preapproval_end_date', date( 'c', time() + 365*86400 ) ),
       'maxAmountPerPayment'         => floatval( $amount ),
       'maxTotalAmountOfAllPayments' => floatval( $amount ),
-      'maxNumberOfPayments'         => 1
+      'maxNumberOfPayments'         => 1,
+      'maxNumberOfPaymentsPerPeriod' => 1
     );
     $response = $this->_paypal_send( $create_packet, 'Preapproval' );
     return $response;
@@ -79,7 +80,7 @@ class PayPalAdaptivePaymentsGateway {
   public function pay($payment_id, $receivers) {
     global $edd_options;
     $create_packet = array(
-      'actionType'         => 'PAY',
+      'actionType'         => 'CREATE',
       'clientDetails'      => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
       'feesPayer'          => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
       'currencyCode'       => $edd_options['currency'],
@@ -89,8 +90,41 @@ class PayPalAdaptivePaymentsGateway {
       'ipnNotificationUrl' => trailingslashit( home_url() ) . '?ipn=epap&payment_id=' . $payment_id,
       'requestEnvelope'    => $this->envelope
     );
-    $response = $this->_paypal_send( $create_packet, 'Pay' );
-    return $response;
+    $pay_response = $this->_paypal_send( $create_packet, 'Pay' );
+    $responsecode = strtoupper( $pay_response['responseEnvelope']['ack'] );
+    if(($responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING')) {
+      $set_response = $this->set_payment_options($pay_response['payKey']);
+      $responsecode = strtoupper( $set_response['responseEnvelope']['ack'] );
+      //if(($responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING')) {
+      //  $execute_response = $this->execute_payment($pay_response['payKey']);
+      //  return $execute_response;
+      //}
+      //else {
+        return $pay_response;
+      //}
+    }
+    else {
+      return $pay_response;
+    }
+  }
+  
+  public function execute_payment($pay_key) {
+    $packet = array(
+      'requestEnvelope' => $this->envelope,
+      'payKey' => $pay_key
+    );
+    return $this->_paypal_send($packet, 'ExecutePayment');
+  }
+  
+  public function set_payment_options($pay_key) {
+    $packet = array(
+      'requestEnvelope' => $this->envelope,
+      'payKey' => $pay_key,
+      'senderOptions' => array(
+        'referrerCode' => 'ArmorlightComputers_SP'
+      )
+    );
+    return $this->_paypal_send($packet, 'SetPaymentOptions');
   }
   
   public function get_payment_details($pay_key) {
