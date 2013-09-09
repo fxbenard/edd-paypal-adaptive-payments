@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.1.2
+Version: 1.1.3
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -17,7 +17,7 @@ if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
 
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.1.2' );
+define( 'EDD_EPAP_VERSION', '1.1.3' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
@@ -172,12 +172,14 @@ function epap_process_payment( $purchase_data ) {
     if( isset( $response['preapprovalKey']) ) {
       $preapproval_key = $response['preapprovalKey'];
       add_post_meta( $payment, '_edd_epap_preapproval_key', $preapproval_key );
+      edd_empty_cart();
       header( 'Location: ' . epap_api_credentials( 'preapproval_url' ) . $preapproval_key );
       exit;
     }
     else {
       $pay_key = $response['payKey'];
       add_post_meta( $payment, '_edd_epap_pay_key', $pay_key );
+      edd_empty_cart();
       header( 'Location: ' . epap_api_credentials( 'checkout_url' ) . $pay_key );
       exit;
     }
@@ -188,9 +190,13 @@ function epap_process_payment( $purchase_data ) {
     edd_record_gateway_error( $title, sprintf( $message, json_encode( $response ) ), $payment );
     // get rid of the pending purchase
     edd_update_payment_status( $payment, 'failed' );
-
-    foreach ( $response['error'] as $key => $value ) {
-      edd_set_error( $value['errorId'], $value['message'] );
+    if( isset( $response['error'] ) ) {
+      foreach ( $response['error'] as $key => $value ) {
+        edd_set_error( $value['errorId'], $value['message'] );
+      }
+    }
+    else {
+      edd_set_error( 'unknown', __('An Unknown Error Occured', 'eppe' ) );
     }
     edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
   }
@@ -577,10 +583,21 @@ function epap_process_preapprovals( $payment_id, $receivers ) {
         
         edd_update_payment_status( $payment_id, 'publish' );
         $processed = true;
+      } else {
+        edd_record_gateway_error( __( 'Preapproval Failed', 'epap' ), sprintf( __( 'A preapproval payment failed to process: %s', 'epap' ), json_encode( $payment ) ), $payment_id );
       }
     } else {
       edd_record_gateway_error( __( 'Preapproval Failed', 'epap' ), sprintf( __( 'A preapproval payment failed to process: %s', 'epap' ), json_encode( $payment ) ), $payment_id );
     }
+  }
+  else {
+    $errors = array(
+      'sender_email' => $sender_email,
+      'amount' => $amount,
+      'paid' => $paid,
+      'preapproval_key' => $preapproval_key
+    );
+    edd_record_gateway_error( __( 'Preapproval Failed', 'epap' ), sprintf( __( 'A preapproval payment failed to process: %s', 'epap' ), json_encode( $errors ) ), $payment_id );
   }
   return $processed;
 }
