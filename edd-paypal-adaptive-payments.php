@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.1.3
+Version: 1.1.4
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -17,7 +17,7 @@ if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
 
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.1.3' );
+define( 'EDD_EPAP_VERSION', '1.1.4' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
@@ -171,7 +171,10 @@ function epap_process_payment( $purchase_data ) {
     
     if( isset( $response['preapprovalKey']) ) {
       $preapproval_key = $response['preapprovalKey'];
+      $preapproval_details = $paypal_adaptive->get_preapproval_details($preapproval_key);
       add_post_meta( $payment, '_edd_epap_preapproval_key', $preapproval_key );
+      add_post_meta( $payment, '_edd_epap_amount', $preapproval_details['maxTotalAmountOfAllPayments'] );
+      add_post_meta( $payment, '_edd_epap_paid', 0 );
       edd_empty_cart();
       header( 'Location: ' . epap_api_credentials( 'preapproval_url' ) . $preapproval_key );
       exit;
@@ -207,8 +210,12 @@ add_action( 'edd_gateway_paypal_adaptive_payments', 'epap_process_payment' );
 // listens for a IPN request and then processes the order information
 function epap_listen_for_ipn() {
   if ( isset( $_GET['ipn'] ) && $_GET['ipn'] == 'epap' && isset( $_GET['payment_id'] ) ) {
+    if( isset( $_POST['sender_email'] ) ) {
+      add_post_meta( $_GET['payment_id'], '_edd_epap_sender_email', $_POST['sender_email'] );
+    }
     switch ( $_POST['transaction_type'] ) {
       case 'Adaptive Payment PAY':
+      case 'Adaptive Payment Pay':
         $pay_key = get_post_meta( $_GET['payment_id'], '_edd_epap_pay_key', true );
         if ( $pay_key == $_POST['pay_key'] ) {
           edd_insert_payment_note( $_GET['payment_id'], sprintf( __( 'PayPal Transaction ID: %s', 'epap' ) , $pay_key ) );
@@ -216,12 +223,20 @@ function epap_listen_for_ipn() {
         }
         break;
       case 'Adaptive Payment PREAPPROVAL':
+      case 'Adaptive Payment Preapproval':
         $preapproval_key = get_post_meta( $_GET['payment_id'], '_edd_epap_preapproval_key', true );
         if ( $preapproval_key == $_POST['preapproval_key'] ) {
-          edd_update_payment_status( $_GET['payment_id'], 'preapproval' );
+          switch( $_POST['status'] ) {
+            case 'CANCELED':
+              edd_update_payment_status( $_GET['payment_id'], 'cancelled' );
+              break;
+            case 'ACTIVE':
+              edd_update_payment_status( $_GET['payment_id'], 'preapproval' );
+              break;
+          }
           add_post_meta( $_GET['payment_id'], '_edd_epap_sender_email', $_POST['sender_email'] );
-          add_post_meta( $_GET['payment_id'], '_edd_epap_amount', $_POST['max_total_amount_of_all_payments'] );
-          add_post_meta( $_GET['payment_id'], '_edd_epap_paid', $_POST['current_total_amount_of_all_payments'] );
+          update_post_meta( $_GET['payment_id'], '_edd_epap_amount', $_POST['max_total_amount_of_all_payments'] );
+          update_post_meta( $_GET['payment_id'], '_edd_epap_paid', $_POST['current_total_amount_of_all_payments'] );
         }
         break;
       default:
