@@ -1,6 +1,16 @@
 Changelog
 
-= Version 1.1.4 - September 9, 2013 =
+= Version 1.2 - October 28, 2013 =
+
+* New: Preapproval and Payment tokens to prevent the need for IPN
+* New: Additional logging for payments and preapprovals
+* Update: Remove unnecessary Meta Tags
+* Update: Language files
+* Fix: Issue where sender email was blank
+* Fix: Incorrect filter name for filtering receivers
+
+
+= Version 1.1.4 - October 21, 2013 =
 
 * Fix: Cancelled preapprovals getting set back to prapproved
 

@@ -28,11 +28,11 @@ class PayPalAdaptivePaymentsGateway {
   
   public function pay_preapprovals($payment_id, $preapproval_key, $sender_email, $amount, $receivers=null) {
     global $edd_options;
-    $response = false;
-    $receivers = isset( $receivers ) ? $receivers : apply_filters( 'edap_adaptive_receivers', $edd_options['epap_receivers'] );
+    $pay_response = false;
+    $receivers = isset( $receivers ) ? $receivers : apply_filters( 'epap_adaptive_receivers', $edd_options['epap_receivers'], $payment_id );
     $receivers = $this->divide_total( $receivers, $amount );
     $create_packet = array(
-      'actionType'         => 'PAY',
+      'actionType'         => 'CREATE',
       'preapprovalKey'     => $preapproval_key,
       'senderEmail'        => $sender_email,
       'clientDetails'      => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
@@ -44,8 +44,22 @@ class PayPalAdaptivePaymentsGateway {
       'ipnNotificationUrl' => trailingslashit( home_url() ) . '?ipn=epap&payment_id=' . $payment_id,
       'requestEnvelope'    => $this->envelope
     );
-    $response = $this->_paypal_send( $create_packet, 'Pay' );
-    return $response;
+    $pay_response = $this->_paypal_send( $create_packet, 'Pay' );
+    $responsecode = strtoupper( $pay_response['responseEnvelope']['ack'] );
+    if(($responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING')) {
+      $set_response = $this->set_payment_options($pay_response['payKey']);
+      $responsecode = strtoupper( $set_response['responseEnvelope']['ack'] );
+      if(($responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING')) {
+        $execute_response = $this->execute_payment($pay_response['payKey']);
+        return $execute_response;
+      }
+      else {
+        return $pay_response;
+      }
+    }
+    else {
+      return $pay_response;
+    }
   }
   
   public function cancel_preapprovals($preapproval_key) {
@@ -57,12 +71,15 @@ class PayPalAdaptivePaymentsGateway {
     return $response;
   }
   
-  public function preapproval($payment_id, $amount, $starting_date=null, $ending_date=null) {
+  public function preapproval($payment_id, $amount, $reference_token, $starting_date=null, $ending_date=null) {
     global $edd_options;
+    $params = array(
+      'preapproval_token' => $reference_token,
+    );
     $create_packet = array(
       'clientDetails'               => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
       'currencyCode'                => $edd_options['currency'],
-      'returnUrl'                   => get_permalink( $edd_options['success_page'] ),
+      'returnUrl'                   => add_query_arg( $params, get_permalink( $edd_options['success_page'] ) ),
       'cancelUrl'                   => function_exists( 'edd_get_failed_transaction_uri' ) ? edd_get_failed_transaction_uri() : get_permalink( $edd_options['purchase_page'] ),
       'ipnNotificationUrl'          => trailingslashit( home_url() ) . '?ipn=epap&payment_id=' . $payment_id,
       'requestEnvelope'             => $this->envelope,
@@ -77,15 +94,18 @@ class PayPalAdaptivePaymentsGateway {
     return $response;
   }
   
-  public function pay($payment_id, $receivers) {
+  public function pay($payment_id, $receivers, $reference_token) {
     global $edd_options;
+    $params = array(
+      'payment_token' => $reference_token,
+    );
     $create_packet = array(
       'actionType'         => 'CREATE',
       'clientDetails'      => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
       'feesPayer'          => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
       'currencyCode'       => $edd_options['currency'],
       'receiverList'       => array( 'receiver' => $receivers ),
-      'returnUrl'          => get_permalink( $edd_options['success_page'] ),
+      'returnUrl'          => add_query_arg( $params, get_permalink( $edd_options['success_page'] ) ),
       'cancelUrl'          => function_exists( 'edd_get_failed_transaction_uri' ) ? edd_get_failed_transaction_uri() : get_permalink( $edd_options['purchase_page'] ),
       'ipnNotificationUrl' => trailingslashit( home_url() ) . '?ipn=epap&payment_id=' . $payment_id,
       'requestEnvelope'    => $this->envelope
