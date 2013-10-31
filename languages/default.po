@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: epap\n"
-"POT-Creation-Date: 2013-10-28 13:27-0500\n"
-"PO-Revision-Date: 2013-10-28 13:32-0500\n"
+"POT-Creation-Date: 2013-10-31 12:49-0500\n"
+"PO-Revision-Date: 2013-10-31 12:49-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -14,205 +14,222 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: paypal\n"
 
-#: edd-paypal-adaptive-payments.php:34 edd-paypal-adaptive-payments.php:112
+#: edd-paypal-adaptive-payments.php:34 edd-paypal-adaptive-payments.php:117
 msgid "Preapproval Pending"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:35 edd-paypal-adaptive-payments.php:113
+#: edd-paypal-adaptive-payments.php:35 edd-paypal-adaptive-payments.php:118
 msgid "Cancelled"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:43 edd-paypal-adaptive-payments.php:93
+#: edd-paypal-adaptive-payments.php:43 edd-paypal-adaptive-payments.php:96
 msgid "Preapproval"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:65 edd-paypal-adaptive-payments.php:96
+#: edd-paypal-adaptive-payments.php:65 edd-paypal-adaptive-payments.php:101
 msgid "Process Payment"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:65 edd-paypal-adaptive-payments.php:97
+#: edd-paypal-adaptive-payments.php:65 edd-paypal-adaptive-payments.php:102
 msgid "Cancel Preapproval"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:120
+#: edd-paypal-adaptive-payments.php:98
+msgid "Sender Email"
+msgstr ""
+
+#: edd-paypal-adaptive-payments.php:99
+msgid "Sender Email is Missing"
+msgstr ""
+
+#: edd-paypal-adaptive-payments.php:125
 msgid "PayPal Adaptive Payments"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:120
+#: edd-paypal-adaptive-payments.php:125
 msgid "PayPal"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:135
+#: edd-paypal-adaptive-payments.php:140
 msgid "You must enter your API keys in settings"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:191
+#: edd-paypal-adaptive-payments.php:196
 msgid "Payment Failed"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:191 edd-paypal-adaptive-payments.php:317
-#: edd-paypal-adaptive-payments.php:326 edd-paypal-adaptive-payments.php:341
-#: edd-paypal-adaptive-payments.php:651 edd-paypal-adaptive-payments.php:654
-#: edd-paypal-adaptive-payments.php:664
+#: edd-paypal-adaptive-payments.php:196 edd-paypal-adaptive-payments.php:325
+#: edd-paypal-adaptive-payments.php:334 edd-paypal-adaptive-payments.php:349
+#: edd-paypal-adaptive-payments.php:659 edd-paypal-adaptive-payments.php:662
+#: edd-paypal-adaptive-payments.php:672
 msgid "Preapproval Failed"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:192
+#: edd-paypal-adaptive-payments.php:197
 #, php-format
 msgid "A payment failed to process: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:192
+#: edd-paypal-adaptive-payments.php:197
 #, php-format
 msgid "A preapproval failed to process: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:202
+#: edd-paypal-adaptive-payments.php:207
 msgid "An Unknown Error Occured"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:219 edd-paypal-adaptive-payments.php:274
-#: edd-paypal-adaptive-payments.php:308
+#: edd-paypal-adaptive-payments.php:224 edd-paypal-adaptive-payments.php:281
+#: edd-paypal-adaptive-payments.php:316
 #, php-format
 msgid "PayPal Transaction ID: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:239
+#: edd-paypal-adaptive-payments.php:246
 msgid "PayPal Adaptive IPN Response"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:239
+#: edd-paypal-adaptive-payments.php:246
 #, php-format
 msgid "IPN Response for an unknown type: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:317 edd-paypal-adaptive-payments.php:326
-#: edd-paypal-adaptive-payments.php:341 edd-paypal-adaptive-payments.php:651
-#: edd-paypal-adaptive-payments.php:654 edd-paypal-adaptive-payments.php:664
+#: edd-paypal-adaptive-payments.php:304 edd-paypal-adaptive-payments.php:673
+msgid "Preapproval Details"
+msgstr ""
+
+#: edd-paypal-adaptive-payments.php:304 edd-paypal-adaptive-payments.php:673
+#, php-format
+msgid "Preapproval Details: %s"
+msgstr ""
+
+#: edd-paypal-adaptive-payments.php:325 edd-paypal-adaptive-payments.php:334
+#: edd-paypal-adaptive-payments.php:349 edd-paypal-adaptive-payments.php:659
+#: edd-paypal-adaptive-payments.php:662 edd-paypal-adaptive-payments.php:672
 #, php-format
 msgid "A preapproval payment failed to process: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:344
+#: edd-paypal-adaptive-payments.php:352
 msgid "Preapproval Details Failed"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:344
+#: edd-paypal-adaptive-payments.php:352
 #, php-format
 msgid ""
 "An error occured while trying to grab the Preapproval Details, perhaps a "
 "missing preapproval key: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:362 edd-paypal-adaptive-payments.php:371
+#: edd-paypal-adaptive-payments.php:370 edd-paypal-adaptive-payments.php:379
 msgid "Preapproval Cancellation Failed"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:362 edd-paypal-adaptive-payments.php:371
+#: edd-paypal-adaptive-payments.php:370 edd-paypal-adaptive-payments.php:379
 #, php-format
 msgid "A preapproval cancellation failed to process: %s"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:390
+#: edd-paypal-adaptive-payments.php:398
 msgid "PayPal Adaptive Payments API Keys"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:391
+#: edd-paypal-adaptive-payments.php:399
 msgid "Configure your PayPal Adaptive Payments settings"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:396
+#: edd-paypal-adaptive-payments.php:404
 msgid "PayPal Adaptive Payments License Key"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:397
+#: edd-paypal-adaptive-payments.php:405
 msgid ""
 "Enter the license key you received with your purchase in order to get "
 "automatic updates"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:403
+#: edd-paypal-adaptive-payments.php:411
 msgid "Live API Username"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:404
+#: edd-paypal-adaptive-payments.php:412
 msgid "Enter your live API username"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:410
+#: edd-paypal-adaptive-payments.php:418
 msgid "Live API Password"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:411
+#: edd-paypal-adaptive-payments.php:419
 msgid "Enter your live API password"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:417
+#: edd-paypal-adaptive-payments.php:425
 msgid "Live API Signature"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:418
+#: edd-paypal-adaptive-payments.php:426
 msgid "Enter your live API signature"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:424
+#: edd-paypal-adaptive-payments.php:432
 msgid "Live APP ID"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:425
+#: edd-paypal-adaptive-payments.php:433
 msgid ""
 "Enter your live APP ID (You can get this by creating an account at www.x.com "
 "and registering a new APP)"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:431
+#: edd-paypal-adaptive-payments.php:439
 msgid "Test API Username"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:432
+#: edd-paypal-adaptive-payments.php:440
 msgid "Enter your test API username"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:438
+#: edd-paypal-adaptive-payments.php:446
 msgid "Test API Password"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:439
+#: edd-paypal-adaptive-payments.php:447
 msgid "Enter your test API password"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:445
+#: edd-paypal-adaptive-payments.php:453
 msgid "Test API Signature"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:446
+#: edd-paypal-adaptive-payments.php:454
 msgid "Enter your test API signature"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:452
+#: edd-paypal-adaptive-payments.php:460
 msgid "Test APP ID"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:453
+#: edd-paypal-adaptive-payments.php:461
 msgid ""
 "Enter your test APP ID (This should almost always be: APP-80W284485P519543T)"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:459
+#: edd-paypal-adaptive-payments.php:467
 msgid "PayPal Adaptive Payment Receivers"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:460
+#: edd-paypal-adaptive-payments.php:468
 msgid ""
 "Add in email addresses for each receiver and the percentage they will "
 "receive."
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:465
+#: edd-paypal-adaptive-payments.php:473
 msgid "PayPal Adaptive Receivers"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:466
+#: edd-paypal-adaptive-payments.php:474
 msgid ""
 "Enter each receiver email on a new line and add a pipe bracket with the "
 "percentage of the payout afterwards. NOTE: The percentages MUST equal 100% "
@@ -220,83 +237,74 @@ msgid ""
 ">test@test.com|50<br />test2@test.com|30<br />test3@test.com|20"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:472
+#: edd-paypal-adaptive-payments.php:480
 msgid "Payment Type"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:473
+#: edd-paypal-adaptive-payments.php:481
 msgid ""
 "Select which type of payment type you want to use with PayPal Adaptive "
 "Payments"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:476
+#: edd-paypal-adaptive-payments.php:484
 msgid "Chained Payments"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:477
+#: edd-paypal-adaptive-payments.php:485
 msgid "Parallel Payments"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:482
+#: edd-paypal-adaptive-payments.php:490
 msgid "Require Pre-Approval"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:483
+#: edd-paypal-adaptive-payments.php:491
 msgid "Enable this option to require Pre-Approval before charging a customer"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:488
+#: edd-paypal-adaptive-payments.php:496
 msgid "Fee Payment"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:489
+#: edd-paypal-adaptive-payments.php:497
 msgid ""
 "Please select the party(ies) responsible to pay the PayPal fees for each "
 "transaction"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:492
+#: edd-paypal-adaptive-payments.php:500
 msgid "Each Receiver"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:493
+#: edd-paypal-adaptive-payments.php:501
 msgid "Sender (only the customer)"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:494
+#: edd-paypal-adaptive-payments.php:502
 msgid "Primary Receiver (first person in receivers list)"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:495
+#: edd-paypal-adaptive-payments.php:503
 msgid "Secondary Only (excluding the first person in receivers list)"
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:548
+#: edd-paypal-adaptive-payments.php:556
 msgid ""
 "Preapproval cancellation failed. Please see the gateway log for more "
 "information."
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:552
+#: edd-paypal-adaptive-payments.php:560
 msgid ""
 "Preapproval payment failed to process. Please see the gateway log for more "
 "information."
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:556
+#: edd-paypal-adaptive-payments.php:564
 msgid "Payment processed successfully."
 msgstr ""
 
-#: edd-paypal-adaptive-payments.php:560
+#: edd-paypal-adaptive-payments.php:568
 msgid "Preapproval payment cancelled successfully."
-msgstr ""
-
-#: edd-paypal-adaptive-payments.php:665
-msgid "Preapproval Details"
-msgstr ""
-
-#: edd-paypal-adaptive-payments.php:665
-#, php-format
-msgid "Preapproval Details: %s"
 msgstr ""
