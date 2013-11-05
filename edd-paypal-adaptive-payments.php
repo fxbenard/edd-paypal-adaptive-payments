@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.2
+Version: 1.2.1
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -17,7 +17,7 @@ if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
 
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.2' );
+define( 'EDD_EPAP_VERSION', '1.2.1' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
@@ -248,41 +248,43 @@ function epap_listen_for_ipn() {
     }
     return true;
   }
-  // This is a failsafe for IPNs that do not work properly
-  $session = edd_get_purchase_session();
-  if ( isset( $_GET[ 'payment_key' ] ) ) {
-    $payment_key = urldecode( $_GET[ 'payment_key' ] );
-  } else if ( $session ) {
-    $payment_key = $session[ 'purchase_key' ];
-  }
-  
-  // No key found
-  if ( ! isset( $payment_key ) )
-    return false;
-  
-  $payment_id = edd_get_purchase_id_by_key( $payment_key );
-  $payment_email = edd_get_payment_user_email( $payment_id );
-  
-  $payment_token = md5( $payment_id . $payment_email );
-  
-  if ( isset( $_GET['preapproval_token'] ) ) {
-    $token = $_GET['preapproval_token'];
-    
-    if ( $payment_token == $token && get_post_status( $payment_id ) != 'publish' ) {
-      edd_update_payment_status( $payment_id, 'preapproval' );
+  if(function_exists('edd_get_purchase_session')) {
+    // This is a failsafe for IPNs that do not work properly
+    $session = edd_get_purchase_session();
+    if ( isset( $_GET[ 'payment_key' ] ) ) {
+      $payment_key = urldecode( $_GET[ 'payment_key' ] );
+    } else if ( $session ) {
+      $payment_key = $session[ 'purchase_key' ];
     }
-  }
-  elseif ( isset( $_GET['payment_token'] ) ) {
-    $token = $_GET['payment_token'];
+  
+    // No key found
+    if ( ! isset( $payment_key ) )
+      return false;
+  
+    $payment_id = edd_get_purchase_id_by_key( $payment_key );
+    $payment_email = edd_get_payment_user_email( $payment_id );
+  
+    $payment_token = md5( $payment_id . $payment_email );
+  
+    if ( isset( $_GET['preapproval_token'] ) ) {
+      $token = $_GET['preapproval_token'];
     
-    if( $payment_token == $token ) {
-      $pay_key = get_post_meta( $payment_id, '_edd_epap_pay_key', true );
-      if( get_post_status( $_GET['payment_id'] ) != 'publish' ) {
-        edd_insert_payment_note( $payment_id, sprintf( __( 'PayPal Transaction ID: %s', 'epap' ) , $pay_key ) );
-        edd_update_payment_status( $payment_id, 'publish' );
+      if ( $payment_token == $token && get_post_status( $payment_id ) != 'publish' ) {
+        edd_update_payment_status( $payment_id, 'preapproval' );
       }
     }
+    elseif ( isset( $_GET['payment_token'] ) ) {
+      $token = $_GET['payment_token'];
     
+      if( $payment_token == $token ) {
+        $pay_key = get_post_meta( $payment_id, '_edd_epap_pay_key', true );
+        if( get_post_status( $_GET['payment_id'] ) != 'publish' ) {
+          edd_insert_payment_note( $payment_id, sprintf( __( 'PayPal Transaction ID: %s', 'epap' ) , $pay_key ) );
+          edd_update_payment_status( $payment_id, 'publish' );
+        }
+      }
+    
+    }
   }
 }
 add_action( 'init', 'epap_listen_for_ipn' );

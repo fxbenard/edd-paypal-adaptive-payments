@@ -1,5 +1,9 @@
 Changelog
 
+= Version 1.2 - November 5, 2013 =
+
+* Fix: Fatal error when EDD is not activated
+
 = Version 1.2 - October 28, 2013 =
 
 * New: Preapproval and Payment tokens to prevent the need for IPN
