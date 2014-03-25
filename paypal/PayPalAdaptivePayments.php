@@ -78,6 +78,7 @@ class PayPalAdaptivePaymentsGateway {
     );
     $create_packet = array(
       'clientDetails'               => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
+      'feesPayer'                   => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
       'currencyCode'                => $edd_options['currency'],
       'returnUrl'                   => add_query_arg( $params, get_permalink( $edd_options['success_page'] ) ),
       'cancelUrl'                   => function_exists( 'edd_get_failed_transaction_uri' ) ? edd_get_failed_transaction_uri() : get_permalink( $edd_options['purchase_page'] ),
