@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.2.2
+Version: 1.2.3
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -17,7 +17,7 @@ if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
 
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.2.1' );
+define( 'EDD_EPAP_VERSION', '1.2.3' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
@@ -161,7 +161,7 @@ function epap_process_payment( $purchase_data ) {
   
   // record the pending payment
   $payment   = edd_insert_payment( $payment_data );
-  $receivers = $paypal_adaptive->divide_total( apply_filters( 'epap_adaptive_receivers', $edd_options['epap_receivers'], $payment ), $purchase_data['price'] );
+  $receivers = $paypal_adaptive->divide_total( apply_filters( 'epap_adaptive_receivers', trim($edd_options['epap_receivers']), $payment ), $purchase_data['price'] );
   
   $type      = 'pay';
   $token = md5( $payment . $purchase_data['user_email'] );

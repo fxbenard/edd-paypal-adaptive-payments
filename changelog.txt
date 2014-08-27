@@ -1,5 +1,9 @@
 Changelog
 
+= Version 1.2.3 - August 26, 2014 = 
+
+* Fix: Issue with invalid email when trying to make a purchase
+
 = Version 1.2.2 - March 25, 2014 =
 
 * Fix: Fees Payer variable missing on Preapproval api call

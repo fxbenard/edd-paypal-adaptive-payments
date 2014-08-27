@@ -29,7 +29,7 @@ class PayPalAdaptivePaymentsGateway {
   public function pay_preapprovals($payment_id, $preapproval_key, $sender_email, $amount, $receivers=null) {
     global $edd_options;
     $pay_response = false;
-    $receivers = isset( $receivers ) ? $receivers : apply_filters( 'epap_adaptive_receivers', $edd_options['epap_receivers'], $payment_id );
+    $receivers = isset( $receivers ) ? $receivers : apply_filters( 'epap_adaptive_receivers', trim($edd_options['epap_receivers']), $payment_id );
     $receivers = $this->divide_total( $receivers, $amount );
     $create_packet = array(
       'actionType'         => 'CREATE',
