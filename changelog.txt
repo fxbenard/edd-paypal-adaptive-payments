@@ -1,5 +1,9 @@
 Changelog
 
+= Version 1.2.4 - October 25, 2014 = 
+
+* Fix: Issue with timezones after time changes
+
 = Version 1.2.3 - August 26, 2014 = 
 
 * Fix: Issue with invalid email when trying to make a purchase
