@@ -19,6 +19,10 @@ define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
 define( 'EDD_EPAP_VERSION', '1.2.4' );
 
+if( class_exists( 'EDD_License' ) && is_admin() ) {
+  $license = new EDD_License( __FILE__, EDD_EPAP_PRODUCT_NAME, EDD_EPAP_VERSION, 'Benjamin Rojas', 'epap_license_key' );
+}
+
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
 }
@@ -402,13 +406,6 @@ function epap_add_settings( $settings ) {
       'type' => 'header'
     ),
     array(
-      'id' => 'epap_license_key',
-      'name' => __( 'PayPal Adaptive Payments License Key', 'epap' ),
-      'desc' => __( 'Enter the license key you received with your purchase in order to get automatic updates', 'epap' ),
-      'type' => 'text',
-      'size' => 'regular'
-    ),
-    array(
       'id' => 'epap_live_api_username',
       'name' => __( 'Live API Username', 'epap' ),
       'desc' => __( 'Enter your live API username', 'epap' ),
@@ -573,66 +570,6 @@ function epap_admin_messages() {
   settings_errors( 'epap-notices' );
 }
 add_action( 'admin_notices', 'epap_admin_messages' );
-
-function epap_activate_license() {
-  global $edd_options;
-
-  if ( ! isset( $_POST['edd_settings_gateways'] ) )
-    return;
-  if ( ! isset( $_POST['edd_settings_gateways']['epap_license_key'] ) )
-    return;
-
-  if ( get_option( 'epap_license_key_active' ) == 'valid' )
-    return;
-
-  $license = sanitize_text_field( $_POST['edd_settings_gateways']['epap_license_key'] );
-
-  // data to send in our API request
-  $api_params = array(
-    'edd_action'=> 'activate_license',
-    'license'   => $license,
-    'item_name' => urlencode( EDD_EPAP_PRODUCT_NAME ) // the name of our product in EDD
-  );
-
-  // Call the custom API.
-  $response = wp_remote_get( add_query_arg( $api_params, EDD_EPAP_STORE_API_URL ), array( 'timeout' => 15, 'sslverify' => false ) );
-
-  // make sure the response came back okay
-  if ( is_wp_error( $response ) )
-    return false;
-
-  // decode the license data
-  $license_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-  update_option( 'epap_license_key_active', $license_data->license );
-
-}
-add_action( 'admin_init', 'epap_activate_license' );
-
-
-function epap_updater() {
-
-  if ( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-    // load our custom updater
-    include dirname( __FILE__ ) . '/EDD_SL_Plugin_Updater.php';
-  }
-
-
-  global $edd_options;
-
-  // retrieve our license key from the DB
-  $epap_license_key = isset( $edd_options['epap_license_key'] ) ? trim( $edd_options['epap_license_key'] ) : '';
-
-  // setup the updater
-  $edd_stripe_updater = new EDD_SL_Plugin_Updater( EDD_EPAP_STORE_API_URL, __FILE__, array(
-      'version'   => EDD_EPAP_VERSION,   // current version number
-      'license'   => $epap_license_key, // license key (used get_option above to retrieve from DB)
-      'item_name' => EDD_EPAP_PRODUCT_NAME, // name of this plugin
-      'author'    => 'Benjamin Rojas'  // author of this plugin
-    )
-  );
-}
-add_action( 'admin_init', 'epap_updater' );
 
 function epap_process_preapprovals( $payment_id, $receivers ) {
   $processed        = false;
