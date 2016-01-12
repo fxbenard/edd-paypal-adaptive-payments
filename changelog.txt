@@ -1,5 +1,11 @@
 Changelog
 
+= Version 1.3 - January 11, 2016 =
+
+* Update: Settings section to use new subsection features
+* Update: Text domain settings
+* Fix: Incorrect currency selector
+
 = Version 1.2.4 - October 25, 2014 = 
 
 * Fix: Issue with timezones after time changes

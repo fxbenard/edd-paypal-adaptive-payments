@@ -3,25 +3,60 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.2.4
+Version: 1.3
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
 */
 
-load_plugin_textdomain( 'epap', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-
 if ( !defined( 'EPAP_PLUGIN_DIR' ) ) {
   define( 'EPAP_PLUGIN_DIR', dirname( __FILE__ ) );
 }
 
+function epap_plugin_data( $variable ) {
+  if ( !function_exists( 'get_plugin_data' ) ) {
+    require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+  }
+  $plugin_data = get_plugin_data( EPAP_PLUGIN_DIR . '/edd-paypal-adaptive-payments.php' );
+  return $plugin_data[ $variable ];
+}
+
 define( 'EDD_EPAP_STORE_API_URL', 'https://easydigitaldownloads.com' );
 define( 'EDD_EPAP_PRODUCT_NAME', 'PayPal Adaptive Payments' );
-define( 'EDD_EPAP_VERSION', '1.2.4' );
+define( 'EDD_EPAP_VERSION', epap_plugin_data( 'Version' ) );
 
 if( class_exists( 'EDD_License' ) && is_admin() ) {
   $license = new EDD_License( __FILE__, EDD_EPAP_PRODUCT_NAME, EDD_EPAP_VERSION, 'Benjamin Rojas', 'epap_license_key' );
 }
+
+// Load the text domain
+function epap_load_textdomain() {
+
+  // Set filter for plugin's languages directory
+  $lang_dir = dirname( plugin_basename( __FILE__ ) ) . '/languages/';
+
+
+  // Traditional WordPress plugin locale filter
+  $locale        = apply_filters( 'plugin_locale',  get_locale(), 'epap' );
+  $mofile        = sprintf( '%1$s-%2$s.mo', 'epap', $locale );
+
+  // Setup paths to current locale file
+  $mofile_local  = $lang_dir . $mofile;
+  $mofile_global = WP_LANG_DIR . '/epap/' . $mofile;
+
+  if ( file_exists( $mofile_global ) ) {
+    // Look in global /wp-content/languages/edd-paypal-adaptive-payments folder
+    load_textdomain( 'epap', $mofile_global );
+  } elseif ( file_exists( $mofile_local ) ) {
+    // Look in local /wp-content/plugins/edd-paypal-adaptive-payments/languages/ folder
+    load_textdomain( 'epap', $mofile_local );
+  } else {
+    // Load the default language files
+    load_plugin_textdomain( 'epap', false, $lang_dir );
+  }
+
+}
+add_action( 'init', 'epap_load_textdomain' );
 
 function epap_load_class() {
   require_once( EPAP_PLUGIN_DIR . '/paypal/PayPalAdaptivePayments.php' );
@@ -156,7 +191,7 @@ function epap_process_payment( $purchase_data ) {
     'date'         => $purchase_data['date'],
     'user_email'   => $purchase_data['user_email'],
     'purchase_key' => $purchase_data['purchase_key'],
-    'currency'     => $edd_options['currency'],
+    'currency'     => edd_get_currency(),
     'downloads'    => $purchase_data['downloads'],
     'cart_details' => $purchase_data['cart_details'],
     'user_info'    => $purchase_data['user_info'],
@@ -504,9 +539,22 @@ function epap_add_settings( $settings ) {
     )
   );
 
+  // If EDD is at version 2.5 or later...
+  if ( version_compare( EDD_VERSION, 2.5, '>=' ) ) {
+    // Use the previously noted array key as an array key again and next your settings
+    $epap_settings = array( 'epap_paypal_adaptive_payments' => $epap_settings );
+  }
+
   return array_merge( $settings, $epap_settings );
 }
 add_filter( 'edd_settings_gateways', 'epap_add_settings' );
+
+function epap_add_settings_section( $section ) {
+  $section['epap_paypal_adaptive_payments'] = __( 'PayPal Adaptive Payments', 'eten' );
+  return $section;
+}
+
+add_filter( 'edd_settings_sections_gateways', 'epap_add_settings_section' );
 
 function epap_api_credentials( $credential=false ) {
   global $edd_options;
