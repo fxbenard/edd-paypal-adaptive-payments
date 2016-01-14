@@ -349,9 +349,9 @@ function epap_process_payment_settings() {
           $payment = $paypal_adaptive->pay_preapprovals( $payment_id, $_GET['preapproval_key'], $sender_email, $amount );
           if ( $payment ) {
             $responsecode = strtoupper( $payment['responseEnvelope']['ack'] );
-            $paymentStatus = strtoupper( $payment[ 'paymentExecStatus' ] );
+            $paymentStatus = ! empty( $payment[ 'paymentExecStatus' ] ) ? strtoupper( $payment[ 'paymentExecStatus' ] ) : '';
             if ( ( $responsecode == 'SUCCESS' || $responsecode == 'SUCCESSWITHWARNING' ) && ( $paymentStatus == 'COMPLETED' ) ) {
-              $pay_key = $payment['payKey'];
+              $pay_key = ! empty( $payment['payKey'] ) ? $payment['payKey'] : '';
               add_post_meta( $payment_id, '_edd_epap_pay_key', $pay_key );
               add_post_meta( $payment_id, '_edd_epap_preapproval_paid', true );
               edd_insert_payment_note( $payment_id, sprintf( __( 'PayPal Transaction ID: %s', 'epap' ) , $pay_key ) );
