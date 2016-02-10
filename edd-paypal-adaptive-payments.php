@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - PayPal Adaptive Payments
 Plugin URL: http://easydigitaldownloads.com/extension/paypal-pro-express
 Description: Adds a payment gateway for PayPal Adaptive Payments
-Version: 1.3
+Version: 1.3.1
 Author: Benjamin Rojas
 Author URI: http://benjaminrojas.net
 Contributors: benjaminprojas
@@ -281,9 +281,9 @@ function epap_listen_for_ipn() {
           update_post_meta( $_GET['payment_id'], '_edd_epap_paid', $_POST['current_total_amount_of_all_payments'] );
         }
         break;
-      default:
-        edd_record_gateway_error( __( 'PayPal Adaptive IPN Response', 'epap' ), sprintf( __( 'IPN Response for an unknown type: %s', 'epap' ), json_encode( $_POST ), $_GET['payment_id'] ) );
-        break;
+      //default:
+      //  edd_record_gateway_error( __( 'PayPal Adaptive IPN Response', 'epap' ), sprintf( __( 'IPN Response for an unknown type: %s', 'epap' ), json_encode( $_POST ), $_GET['payment_id'] ) );
+      //  break;
     }
     return true;
   }
@@ -553,8 +553,15 @@ function epap_add_settings_section( $section ) {
   $section['epap_paypal_adaptive_payments'] = __( 'PayPal Adaptive Payments', 'eten' );
   return $section;
 }
-
 add_filter( 'edd_settings_sections_gateways', 'epap_add_settings_section' );
+
+function epap_fees( $fees_payer, $receivers ) {
+  if ( !empty( $receivers ) && ( $fees_payer == 'PRIMARYRECEIVER' || $fees_payer == 'SECONDARYONLY' ) ) {
+    return count( $receivers ) > 1 ? $fees_payer : 'EACHRECEIVER';
+  }
+  return $fees_payer;
+}
+add_filter( 'epap_fees', 'epap_fees', 10, 2 );
 
 function epap_api_credentials( $credential=false ) {
   global $edd_options;

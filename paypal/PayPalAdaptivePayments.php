@@ -36,7 +36,7 @@ class PayPalAdaptivePaymentsGateway {
       'preapprovalKey'     => $preapproval_key,
       'senderEmail'        => $sender_email,
       'clientDetails'      => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
-      'feesPayer'          => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
+      'feesPayer'          => isset( $edd_options['epap_fees'] ) ? apply_filters( 'epap_fees', $edd_options['epap_fees'], $receivers ) : 'EACHRECEIVER',
       'currencyCode'       => edd_get_currency(),
       'receiverList'       => array( 'receiver' => $receivers ),
       'returnUrl'          => get_permalink( $edd_options['success_page'] ),
@@ -78,7 +78,7 @@ class PayPalAdaptivePaymentsGateway {
     );
     $create_packet = array(
       'clientDetails'               => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
-      'feesPayer'                   => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
+      'feesPayer'                   => isset( $edd_options['epap_fees'] ) ? apply_filters( 'epap_fees', $edd_options['epap_fees'], array() ) : 'EACHRECEIVER',
       'currencyCode'                => edd_get_currency(),
       'returnUrl'                   => add_query_arg( $params, get_permalink( $edd_options['success_page'] ) ),
       'cancelUrl'                   => function_exists( 'edd_get_failed_transaction_uri' ) ? edd_get_failed_transaction_uri() : get_permalink( $edd_options['purchase_page'] ),
@@ -103,7 +103,7 @@ class PayPalAdaptivePaymentsGateway {
     $create_packet = array(
       'actionType'         => 'CREATE',
       'clientDetails'      => array( 'applicationId' => epap_api_credentials('app_id'), 'ipAddress' => $_SERVER['SERVER_ADDR'] ),
-      'feesPayer'          => isset( $edd_options['epap_fees'] ) ? $edd_options['epap_fees'] : 'EACHRECEIVER',
+      'feesPayer'          => isset( $edd_options['epap_fees'] ) ? apply_filters( 'epap_fees', $edd_options['epap_fees'], $receivers ) : 'EACHRECEIVER',
       'currencyCode'       => edd_get_currency(),
       'receiverList'       => array( 'receiver' => $receivers ),
       'returnUrl'          => add_query_arg( $params, get_permalink( $edd_options['success_page'] ) ),
@@ -182,52 +182,46 @@ class PayPalAdaptivePaymentsGateway {
     
   }
   
-  public function divide_total($adaptive_receivers, $total) {
+  public function divide_total( $adaptive_receivers, $total ) {
     global $edd_options;
     $receivers = array();
-    if(!is_array($adaptive_receivers)) {
-      $adaptive_receivers = explode("\n", $adaptive_receivers);
+    if ( !is_array( $adaptive_receivers ) ) {
+      $adaptive_receivers = explode( "\n", $adaptive_receivers );
     }
-    $total_receivers = count($adaptive_receivers);
+    $total_receivers = count( $adaptive_receivers );
     $new_total = 0;
     $cycle = 0;
-    foreach($adaptive_receivers as $key => $receiver) {
+    foreach ( $adaptive_receivers as $key => $receiver ) {
       $cycle++;
-      if(!is_array($receiver)) {
-        $receiver = explode('|', $receiver);
+      if ( !is_array( $receiver ) ) {
+        $receiver = explode( '|', $receiver );
       }
-      $amount = round($total / 100 * trim($receiver[1]), 2);
+      $amount = round( $total / 100 * trim( $receiver[1] ), 2);
       
-      if(isset($edd_options['epap_payment_type']) && $edd_options['epap_payment_type'] == 'parallel') {
-        $receivers[$key] = array(
-          'email' => trim($receiver[0]),
-          'amount' => $amount
-        );
-      }
-      else {
-        if($cycle == 1) {
-          $receivers[$key] = array(
-            'email' => trim($receiver[0]),
-            'amount' => $total,
-            'primary' => true
-          );
+      $payment_type = isset( $edd_options['epap_payment_type'] ) ? $edd_options['epap_payment_type'] : 'parallel';
+      $payment_type = apply_filters( 'epap_payment_type', $payment_type );
+
+      $receivers[ $key ] = array(
+        'email' => trim( $receiver[0] ),
+        'amount' => $amount
+      );
+
+      if( $payment_type == 'chained' ) {
+        if( $cycle == 1 && $total_receivers > 1 ) {
+          $receivers[ $key ]['primary'] = true;
         }
-        else {
-          $receivers[$key] = array(
-            'email' => trim($receiver[0]),
-            'amount' => $amount,
-            'primary' => false
-          );
+        elseif( $total_receivers > 1 ) {
+          $receivers[ $key ]['primary'] = false;
         }
       }
       
       $new_total += $amount;
-      if($cycle == $total_receivers) {
-        if($new_total > $total) {
-          $receivers[$key]['amount'] = $amount - ($new_total - $total);
+      if ( $cycle == $total_receivers ) {
+        if ( $new_total > $total ) {
+          $receivers[ $key ]['amount'] = $amount - ( $new_total - $total );
         }
-        elseif($total > $new_total) {
-          $receivers[$key]['amount'] = $amount + ($total - $new_total);
+        elseif( $total > $new_total ) {
+          $receivers[ $key ]['amount'] = $amount + ( $total - $new_total );
         }
       }
     }
