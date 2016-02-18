@@ -200,7 +200,13 @@ function epap_process_payment( $purchase_data ) {
   
   // record the pending payment
   $payment   = edd_insert_payment( $payment_data );
-  $receivers = $paypal_adaptive->divide_total( apply_filters( 'epap_adaptive_receivers', trim($edd_options['epap_receivers']), $payment ), $purchase_data['price'] );
+  $receivers = apply_filters( 'epap_adaptive_receivers', trim($edd_options['epap_receivers']), $payment );
+  
+  if( empty( $receivers ) ) {
+    edd_set_error( 'unknown', __('Oops! You haven\'t set up any receivers for Paypal Adaptive Payments.<br>Enter one by going to "Dashboard" > "Downloads" > "Settings" > "Payment Gateways" > "Paypal Adaptive Payments".<br><br>You can read the full set-up instructions for Adaptive Payments here: <a href="http://docs.easydigitaldownloads.com/article/348-paypal-adaptive-payments-setup">http://docs.easydigitaldownloads.com/article/348-paypal-adaptive-payments-setup</a>', 'eppe' ) );
+    edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
+  }
+  $receivers = $paypal_adaptive->divide_total( $receivers, $purchase_data['price'] );
   
   $type      = 'pay';
   $token = md5( $payment . $purchase_data['user_email'] );
