@@ -1,6 +1,6 @@
 <?php
 class PayPalAdaptivePaymentsGateway {
-	
+
 	public function __construct() {
 		$this->headers = array(
 			'X-PAYPAL-SECURITY-USERID: ' . epap_api_credentials( 'api_username' ),
@@ -15,7 +15,7 @@ class PayPalAdaptivePaymentsGateway {
 			'detailLevel' => 'returnAll'
 		);
 	}
-	
+
 	public function get_preapproval_details( $preapproval_key ) {
 		$response = false;
 		$create_packet = array(
@@ -25,7 +25,7 @@ class PayPalAdaptivePaymentsGateway {
 		$response = $this->_paypal_send( $create_packet, 'PreapprovalDetails' );
 		return $response;
 	}
-	
+
 	public function pay_preapprovals( $payment_id, $preapproval_key, $sender_email, $amount, $receivers=null ) {
 		global $edd_options;
 		$pay_response = false;
@@ -61,7 +61,7 @@ class PayPalAdaptivePaymentsGateway {
 			return $pay_response;
 		}
 	}
-	
+
 	public function cancel_preapprovals( $preapproval_key ) {
 		$create_packet = array(
 			'requestEnvelope' => $this->envelope,
@@ -70,7 +70,7 @@ class PayPalAdaptivePaymentsGateway {
 		$response = $this->_paypal_send( $create_packet, 'CancelPreapproval' );
 		return $response;
 	}
-	
+
 	public function preapproval( $payment_id, $amount, $reference_token, $starting_date=null, $ending_date=null ) {
 		global $edd_options;
 		$params = array(
@@ -94,7 +94,7 @@ class PayPalAdaptivePaymentsGateway {
 		$response = $this->_paypal_send( $create_packet, 'Preapproval' );
 		return $response;
 	}
-	
+
 	public function pay( $payment_id, $receivers, $reference_token ) {
 		global $edd_options;
 		$params = array(
@@ -117,10 +117,10 @@ class PayPalAdaptivePaymentsGateway {
 			$set_response = $this->set_payment_options($pay_response['payKey']);
 			$responsecode = strtoupper( $set_response['responseEnvelope']['ack'] );
 		}
-		
+
 		return $pay_response;
 	}
-	
+
 	public function execute_payment( $pay_key ) {
 		$packet = array(
 			'requestEnvelope' => $this->envelope,
@@ -128,18 +128,18 @@ class PayPalAdaptivePaymentsGateway {
 		);
 		return $this->_paypal_send($packet, 'ExecutePayment');
 	}
-	
+
 	public function set_payment_options($pay_key) {
 		$packet = array(
 			'requestEnvelope' => $this->envelope,
 			'payKey' => $pay_key,
 			'senderOptions' => array(
-				'referrerCode' => 'ArmorlightComputers_SP'
+				'referrerCode' => 'EasyDigitalDownloads_SP'
 			)
 		);
 		return $this->_paypal_send( $packet, 'SetPaymentOptions' );
 	}
-	
+
 	public function get_payment_details( $pay_key ) {
 		$packet = array(
 			'requestEnvelope' => $this->envelope,
@@ -147,22 +147,22 @@ class PayPalAdaptivePaymentsGateway {
 		);
 		return $this->_paypal_send( $packet, 'PaymentDetails' );
 	}
-	
+
 	public function get_payment_options( $pay_key ) {
 		$packet = array(
 			'requestEnvelope' => $this->envelope,
 			'payKey' => $pay_key
 		);
-		
+
 		return $this->_paypal_send( $packet, 'GetPaymentOptions' );
 	}
-	
+
 	public function _paypal_send( $data, $call ) {
 		//open connection
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, epap_api_credentials( 'api_end_point' ) . $call );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, FALSE ); 
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, FALSE );
 		curl_setopt( $ch, CURLOPT_POST, TRUE );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $data ) );
@@ -170,9 +170,9 @@ class PayPalAdaptivePaymentsGateway {
 		$response = json_decode( curl_exec( $ch ), true );
 		curl_close( $ch );
 		return $response;
-		
+
 	}
-	
+
 	public function divide_total( $adaptive_receivers, $total ) {
 		global $edd_options;
 		$receivers = array();
@@ -188,7 +188,7 @@ class PayPalAdaptivePaymentsGateway {
 				$receiver = explode( '|', $receiver );
 			}
 			$amount = round( $total / 100 * trim( $receiver[1] ), 2);
-			
+
 			$payment_type = isset( $edd_options['epap_payment_type'] ) ? $edd_options['epap_payment_type'] : 'parallel';
 			$payment_type = apply_filters( 'epap_payment_type', $payment_type );
 
@@ -208,7 +208,7 @@ class PayPalAdaptivePaymentsGateway {
 					$receivers[ $key ]['primary'] = false;
 				}
 			}
-			
+
 			$new_total += $amount;
 			if ( $cycle == $total_receivers ) {
 				if ( $new_total > $total ) {
@@ -219,8 +219,8 @@ class PayPalAdaptivePaymentsGateway {
 				}
 			}
 		}
-		
+
 		return $receivers;
 	}
-	
+
 }
